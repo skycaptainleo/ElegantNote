@@ -1,14 +1,17 @@
+% Author: Dongsheng Deng
+% Homepage: https://ddswhu.me/
+% Email: elegantlatex2e@gmail.com
+% Lastest Version: https://github.com/ElegantLaTeX/ElegantNote
+
+% --- Class structure: identification part
+\ProvidesClass{elegantnote}[2018/04/25 ElegantNote v2.20 class]
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{elegantnote}[2018/01/06 ElegantNote v2.00 class]
-\LoadClass[12pt,final]{article}
 
 \RequirePackage{kvoptions}
 \RequirePackage{ifthen}
 \RequirePackage{ifxetex}
 \RequirePackage{etoolbox}
 \RequirePackage{calc}
-\AtEndOfClass{\RequirePackage{microtype}}
-
 
 \SetupKeyvalOptions{family=ELEGANT, prefix=ELEGANT@, setkeys=\kvsetkeys}
 \newcommand{\ekv}[1]{\kvsetkeys{ELEGANT}{#1}}
@@ -24,6 +27,7 @@
 \DeclareVoidOption{blue}{\ekv{color = blue}}
 \DeclareVoidOption{sakura}{\ekv{color = sakura}}
 \DeclareVoidOption{black}{\ekv{color = black}}
+\DeclareVoidOption{epubblue}{\ekv{color = epubblue}}
 
 \DeclareVoidOption{pc}{\ekv{device = pc}}
 \DeclareVoidOption{pad}{\ekv{device = pad}}
@@ -34,47 +38,36 @@
 \DeclareVoidOption{en}{\ekv{lang = en}}
 
 \DeclareVoidOption{geye}{\ekv{mode = geye}}
+\DeclareVoidOption{epub}{\ekv{mode = epub}}
 
-\DeclareOption*{\PassOptionsToClass{\CurrentOption}{article}}
-%\ExecuteOptions{12pt}
+\DeclareDefaultOption{\PassOptionsToClass{\CurrentOption}{article}}
 \ProcessKeyvalOptions*\relax
-\ProcessOptions*
+\LoadClass{article}
 
+\PassOptionsToPackage{no-math}{fontspec}
+\ifdefstring{\ELEGANT@lang}{cn}{
+\RequirePackage[UTF8, scheme=plain,punct=kaiming]{ctex}
+}
 
-
-% fontsetting
 \RequirePackage{ifxetex}
 \ifxetex
-	\RequirePackage{fontenc}
-	\RequirePackage[no-math]{fontspec}
-	\setmainfont{Times New Roman}[NFSSFamily=ntxtlf]
-	\setsansfont{Arial}
-	%\setmonofont[Scale=0.9]{Courier New}
-	\RequirePackage{xeCJK}
-	\RequirePackage{xunicode}
-	\setCJKmainfont[BoldFont={SimHei},ItalicFont={KaiTi}]{SimSun}
-	\setCJKsansfont[BoldFont={SimHei},ItalicFont={KaiTi}]{KaiTi}
-	\setCJKmonofont[BoldFont={SimHei},ItalicFont={KaiTi},Scale=0.9]{Microsoft YaHei}
-	\XeTeXlinebreaklocale "zh"
-	\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-	\RequirePackage{newtxmath}
-	%\DeclareSymbolFont{operators}{OT1}{ntxtlf}{m}{n}
-	%\SetSymbolFont{operators}{bold}{OT1}{ntxtlf}{b}{n}
-	\setCJKfamilyfont{zhsong}{SimSun}
-	\setCJKfamilyfont{zhhei}{SimHei}
-	\setCJKfamilyfont{zhkai}{KaiTi}
-	\setCJKfamilyfont{zhfs}{FangSong}
-	\newcommand*{\songti}{\CJKfamily{zhsong}} 
-	\newcommand*{\heiti}{\CJKfamily{zhhei}}   
-	\newcommand*{\kaishu}{\CJKfamily{zhkai}} 
-	\newcommand*{\fangsong}{\CJKfamily{zhfs}} 
+  \RequirePackage{fontenc}
 \else
-	\RequirePackage{fontenc}
-	\RequirePackage{newtxtext}
-	\RequirePackage{newtxmath}
-	\RequirePackage[UTF8, scheme=plain]{ctex}
+  \RequirePackage[T1]{fontenc}
+  \AtEndOfClass{\RequirePackage{microtype}}
 \fi
-\RequirePackage[scale=0.8]{FiraMono}
+
+\RequirePackage{newtxtext}
+\RequirePackage{newtxmath}
+
+\RequirePackage{listings} 
+\renewcommand{\ttdefault}{cmtt}
+\lstdefinestyle{mystyle}{
+  basicstyle=%
+    \ttfamily
+    \lst@ifdisplaystyle\footnotesize\fi
+}
+
 
 % 常用宏包
 \RequirePackage{indentfirst}
@@ -88,7 +81,7 @@
 \RequirePackage{hyperref}
 \RequirePackage{xpatch}
 \definecolor{winered}{rgb}{0.5,0,0}
-
+\definecolor{epubblue}{RGB}{1,126,218}
 \hypersetup{%
     pdfborder = {0 0 0},
     colorlinks,
@@ -109,6 +102,11 @@
   \definecolor{geyecolor}{RGB}{199,237,204}%
   \pagecolor{geyecolor}
 }{\relax}
+\ifdefstring{\ELEGANT@mode}{epub}{
+  \definecolor{geyecolor}{RGB}{251,250,248}%
+  \pagecolor{geyecolor}
+}{\relax}
+
 
 % graphics path
 \graphicspath{{./figure/}{./figures/}{./image/}{./images/}{./graphics/}{./graphic/}{./pictures/}{./picture/}}
@@ -125,7 +123,7 @@
 \captionsetup[figure]{skip=3pt}
 
 % list/itemize/enumerate setting
-\RequirePackage[shortlabels]{enumitem}
+\RequirePackage[shortlabels,inline]{enumitem}
 \setlist{nolistsep}
 
 
@@ -133,15 +131,18 @@
 \RequirePackage{fancyhdr}
 \fancyhf{}
 \pagestyle{fancy}
-\cfoot{\footnotesize\textcolor{gray}{\thepage}}
+\rfoot{\footnotesize\textcolor{gray}{\thepage}}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
 \fancypagestyle{plain}{%
   \renewcommand{\headrulewidth}{0pt}%
   \fancyhf{}%
-  \fancyfoot[C]{\footnotesize \textcolor{gray}{\thepage}}%
+  \fancyfoot[R]{\footnotesize \textcolor{gray}{\thepage}}%
 }
+
+\RequirePackage[flushmargin]{footmisc}
+\setlength{\footnotesep}{12pt}
 
 % bib-settings
 \RequirePackage{natbib}
@@ -154,16 +155,19 @@
   	\definecolor{ecolor}{RGB}{0,120,2}%
 }{\relax}
 \ifdefstring{\ELEGANT@color}{cyan}{
-  \definecolor{ecolor}{RGB}{0,175,152}%
+  \definecolor{ecolor}{RGB}{31,186,190}%
 }{\relax}
 \ifdefstring{\ELEGANT@color}{blue}{
-  \definecolor{ecolor}{RGB}{20,50,104}%
+  \definecolor{ecolor}{RGB}{60,113,183}%
 }{\relax}
 \ifdefstring{\ELEGANT@color}{sakura}{
   \definecolor{ecolor}{RGB}{255,183,197}%
 }{\relax}
 \ifdefstring{\ELEGANT@color}{black}{
   \definecolor{ecolor}{RGB}{0,0,0}%
+}{\relax}
+\ifdefstring{\ELEGANT@color}{epubblue}{
+  \definecolor{ecolor}{RGB}{1,126,218}%
 }{\relax}
 
 \definecolor{egreen}{RGB}{0,120,2}
@@ -178,7 +182,7 @@
 	\RequirePackage[margin=8mm, paperwidth=6.2in, paperheight=6in,includefoot]{geometry}
 }{\relax}
 \ifdefstring{\ELEGANT@device}{pad}{
-	\RequirePackage[margin=8mm, paperwidth=6in, paperheight=8in,includefoot]{geometry}
+	\RequirePackage[paperwidth=6in, paperheight=8in,includefoot,margin=8mm]{geometry}
 	%197mm*148mm
 }{\relax}
 \ifdefstring{\ELEGANT@device}{kindle}{
@@ -188,6 +192,8 @@
 \ifdefstring{\ELEGANT@device}{normal}{
 	\RequirePackage[margin=1in, a4paper]{geometry}
 }{\relax}
+
+
 
 \allsectionsfont{\color{ecolor}}
 %\sectionfont{\color{ecolor}}
@@ -216,7 +222,6 @@
 	\newcommand\updatetext{更新：}%
 	\setlength{\parindent}{2em}
   	\newcommand{\keywords}[1]{\vskip2ex\par\noindent\normalfont{\bfseries 关键词: } #1}
-  
 }{\relax}
 \ifdefstring{\ELEGANT@lang}{en}{
   \theoremstyle{plain}% default
@@ -232,14 +237,20 @@
 	\newtheorem*{remark}{Remark} %
 	\newtheorem*{note}{Note} %
 	\newtheorem{case}{Case} 
-	\renewcommand*{\proofname}{\normalfont\bfseries\color{ecolor}Proof}
+	\renewcommand*{\proofname}{\normalfont\bfseries\color{ecolor} Proof}
 	\newcommand\versiontext{Version: }%
 	\newcommand\updatetext{Update: }%
 }{\relax}
 
+
+
+\def\IfEmpty#1{%
+  \edef\1{\the#1}
+  \ifx\1\empty
+}
 \newtoks\version
 \newtoks\institute
-
+\def \ifempty#1{\def\temp{#1} \ifx\temp\empty }
 \renewcommand\maketitle{\par
   \begingroup
     \renewcommand\thefootnote{\@fnsymbol\c@footnote}%
@@ -266,16 +277,18 @@
   \global\let\@maketitle\relax
   \global\let\@thanks\@empty
   \global\let\@author\@empty
+  \global\let\@ELEGANT@version\@empty
   \global\let\@date\@empty
   \global\let\@title\@empty
   \global\let\title\relax
   \global\let\author\relax
   \global\let\date\relax
   \global\let\and\relax
+  \global\let\ELEGANT@version\relax
 }
 \def\@maketitle{%
-  \newpage
-  \color{ecolor}
+\thispagestyle{empty}
+ \color{ecolor}
   \null
   \vskip 2em%
   \begin{center}%
@@ -285,56 +298,87 @@
     {\large
       \lineskip .5em%
       \begin{tabular}[t]{c}%
-       \kaishu \@author\\
+        \@author\\
         \the\institute
       \end{tabular}\par}%
-    \vskip 1.5em%
-    {\small\itshape \versiontext \the\version}%
-    \vskip -.5em%
-    {\small\itshape \updatetext \@date}%
+\vskip 1.5em%
+\IfEmpty\version
+\else 
+	{\small\normalfont\ifdefstring{\ELEGANT@lang}{en}{\itshape}{\kaishu} \versiontext\the\version}
+\fi
+\ifx\@date\empty
+\else
+\vskip 0.1em%
+ 	{\small\normalfont\ifdefstring{\ELEGANT@lang}{en}{\itshape}{\kaishu} \updatetext\@date}%
+\fi
   \end{center}%
   \par
-  \vskip 1.5em}
-  
+}
+
+% \RequirePackage{fancyhdr}
+
+% \pagestyle{fancy}
+% \fancyhf{}
+% \fancyhead[L]{\@title}
+% \fancyhead[R]{\leftmark}
+% \renewcommand{\headrulewidth}{0pt}
+% \fancyfoot[R]{\thepage}
 
 \RequirePackage{tikz}
 \usetikzlibrary{shadows}
-\newcommand*{\eBall}{\tikz \draw [baseline, ball color=ecolor, draw=ecolor] circle (2pt);}
-\newcommand*{\eShadow}{\tikz \draw [baseline, fill=ecolor,draw=ecolor,circular drop shadow] circle (2pt);}
-\setlist[enumerate,1]{label=\color{ecolor}(\arabic*).}
-\setlist[enumerate,2]{label=\color{ecolor}(\Roman*).}
-\setlist[enumerate,3]{label=\color{ecolor}(\Alph*).}
-\setlist[enumerate,4]{label=\color{ecolor}(\roman*).}
-\setlist[itemize,1]{label={\eBall}}
-\setlist[itemize,2]{label={\eShadow}}
+\newcommand*{\eitemi}{\tikz \draw [baseline, ball color=ecolor, draw=none] circle (2pt);}
+\newcommand*{\eitemii}{\tikz \draw [baseline, fill=ecolor,draw=none,circular drop shadow] circle (2pt);}
+\newcommand*{\eitemiii}{\tikz \draw [baseline, fill=ecolor,draw=none] circle (2pt);}
+\setlist[enumerate,1]{label=\color{ecolor}\arabic*.}
+\setlist[enumerate,2]{label=\color{ecolor}(\alph*).}
+\setlist[enumerate,3]{label=\color{ecolor}\Roman*.}
+\setlist[enumerate,4]{label=\color{ecolor}\Alph*.}
+\setlist[itemize,1]{label={\eitemi}}
+\setlist[itemize,2]{label={\eitemii}}
+\setlist[itemize,3]{label={\eitemiii}}
 %source1: https://tex.stackexchange.com/questions/41408/a-five-level-deep-list
 %source2: https://tex.stackexchange.com/questions/318199/change-color-of-itemize-bullet 
 
-\DeclareSymbolFont{cmlargesymbols}{OMX}{cmex}{m}{n}
-\DeclareMathSymbol{\intop}{\mathop}{cmlargesymbols}{"5A}
-  \def\int{\intop\nolimits}
-\DeclareMathSymbol{\ointop}{\mathop}{cmlargesymbols}{"49}
-  \def\oint{\ointop\nolimits}
-\DeclareMathSymbol{\sumop}{\mathop}{cmlargesymbols}{"58}
-  \let\sum\sumop
-\DeclareMathSymbol{\prodop}{\mathop}{cmlargesymbols}{"59}
-  \let\prod\prodop
 
 
-\RequirePackage{listings} 
+\DeclareSymbolFont{CMletters}     {OML}{cmm} {m}{it}%
+\DeclareSymbolFont{CMsymbols}     {OMS}{cmsy}{m}{n}%
+\DeclareSymbolFont{CMlargesymbols}{OMX}{cmex}{m}{n}%
+
+% \let\sum\relax
+% \DeclareMathSymbol{\sum}{\mathop}{CMlargesymbols}{"50}%
+% \let\int\relax
+% \DeclareMathSymbol{\int}{\mathop}{CMlargesymbols}{"5A}%
+
+\let\intop\relax\let\sumop\relax\let\ointop\relax\let\prodop\relax
+\DeclareMathSymbol{\sumop}{\mathop}{CMlargesymbols}{"50}
+\DeclareMathSymbol{\intop}{\mathop}{CMlargesymbols}{"52}
+\DeclareMathSymbol{\ointop}{\mathop}{CMlargesymbols}{"49}
+\DeclareMathSymbol{\prodop}{\mathop}{CMlargesymbols}{"59}
+
+% \let\partial\relax
+% \DeclareMathSymbol{\partial}{\mathord}{CMletters}{"40}%
+% \let\in\relax
+%\DeclareMathSymbol{\in}{\mathrel}{CMsymbols}{"32}%
+% \let\pi\relax
+% \DeclareMathSymbol{\pi}{\mathord}{CMletters}{"19}
+
+
+
+\lstset{basicstyle=\scriptsize\ttfamily,style=mystyle}
+
 \definecolor{lightgrey}{rgb}{0.9,0.9,0.9}
 \definecolor{frenchplum}{RGB}{190,20,83}
 \lstset{language=[LaTeX]TeX,
-	texcsstyle=*\bf\color{winered}\ttfamily,
-	basicstyle=\footnotesize\ttfamily,
+	texcsstyle=*\color{winered},
 	numbers=none,
 	breaklines=true,
-	keywordstyle=\bf\color{winered}\ttfamily,
+	keywordstyle=\color{winered},
 	commentstyle=\color{gray},
 	emph={elegantpaper,fontenc,fontspec,xeCJK,FiraMono,xunicode,newtxmath,figure,fig,image,img,table,itemize,enumerate,newtxtext,newtxtt,ctex,microtype,description,times,newtx,booktabs,tabular,PDFLaTeX,XeLaTeX,type1cm,BibTeX,device,color,mode,lang,amsthm},
 	emphstyle={\color{frenchplum}},
 	morekeywords={DeclareSymbolFont,SetSymbolFont,toprule,midrule,bottomrule,institute,version,includegraphics,setmainfont,setsansfont,setmonofont ,setCJKmainfont,setCJKsansfont,setCJKmonofont,RequirePackage,figref,tabref,email,maketitle,keywords},
 	frame=none,
 	tabsize=2,
-	rulecolor=\color{ecolor},
+	% backgroundcolor=\color{lightgrey}
 }
